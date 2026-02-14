@@ -65,19 +65,23 @@ export const Step2_Structure: React.FC = () => {
                   sx={{ color: THEME_COLORS.primary }}
                 />
               </Box>
-              <Box>
-                <Typography gutterBottom variant="body2" color="text.secondary">Hangings: {state.innerStructure.hangings}</Typography>
-                <Slider
-                  value={state.innerStructure.hangings}
-                  onChange={(_, val) => setInnerStructure({ hangings: val as number })}
-                  step={1}
-                  min={0}
-                  max={5}
-                  marks
-                  valueLabelDisplay="auto"
-                  sx={{ color: THEME_COLORS.primary }}
-                />
-              </Box>
+              
+              {state.productType === 'wardrobe' && (
+                <Box>
+                  <Typography gutterBottom variant="body2" color="text.secondary">Hangings: {state.innerStructure.hangings}</Typography>
+                  <Slider
+                    value={state.innerStructure.hangings}
+                    onChange={(_, val) => setInnerStructure({ hangings: val as number })}
+                    step={1}
+                    min={0}
+                    max={5}
+                    marks
+                    valueLabelDisplay="auto"
+                    sx={{ color: THEME_COLORS.primary }}
+                  />
+                </Box>
+              )}
+
               <Box>
                 <Typography gutterBottom variant="body2" color="text.secondary">Drawers: {state.innerStructure.drawers}</Typography>
                 <Slider

@@ -90,7 +90,7 @@ export const CANVAS_LIGHTING = {
 };
 
 export const APP_CONFIG = {
-  appName: 'Wodexo',
+  appName: 'Homstra',
   appSubtitle: 'Wardrobe Configurator',
   currency: '₹',
 };

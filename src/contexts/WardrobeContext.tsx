@@ -25,9 +25,9 @@ interface WardrobeProviderProps {
 
 const INITIAL_MATERIAL_CONFIG: MaterialConfig = {
   baseMaterial: 'particle_board',
-  baseColor: 'white',
+  baseColor: 'oak', // Default changed from white to oak for better visibility
   aesthetic: 'laminate',
-  aestheticColor: 'white',
+  aestheticColor: 'oak', // Default changed from white to oak
   hardwareBrand: 'hafele',
 };
 
@@ -76,7 +76,41 @@ export const WardrobeProvider: React.FC<WardrobeProviderProps> = ({ children }) 
   }, []);
 
   const setProductType = useCallback((productType: ProductType) => {
-    setState((prev) => ({ ...prev, productType }));
+    setState((prev) => {
+      // Set sensible defaults for inner structure based on product type
+      let newInnerStructure = { ...prev.innerStructure };
+      
+      if (productType === 'sneakers_storage') {
+        newInnerStructure = {
+          shelves: 6,
+          hangings: 0,
+          drawers: 0
+        };
+      } else if (productType === 'bar_unit') {
+        newInnerStructure = {
+          shelves: 3,
+          hangings: 0,
+          drawers: 1
+        };
+      } else if (productType === 'wardrobe') {
+        // Restore defaults or keep existing if it makes sense? 
+        // Let's reset to standard wardrobe defaults if coming from others
+        if (prev.productType !== 'wardrobe') {
+           newInnerStructure = {
+             shelves: 4,
+             hangings: 2,
+             drawers: 2
+           };
+        }
+      }
+
+      return { 
+        ...prev, 
+        productType,
+        innerStructure: newInnerStructure,
+        viewSide: 'inner' // Auto-switch to inner view to show structure changes
+      };
+    });
   }, []);
 
   const setDimensions = useCallback((dimensions: WardrobeDimensions) => {
