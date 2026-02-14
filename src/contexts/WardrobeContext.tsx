@@ -13,6 +13,8 @@ import {
   InnerStructure,
   OuterStructure,
   MaterialConfig,
+  UserProfile,
+  StructureMode,
 } from '../types/wardrobe';
 import { calculatePrice } from '../utils/pricingEngine';
 import { DEFAULT_DIMENSIONS } from '../constants/wardrobe';
@@ -54,10 +56,13 @@ export const WardrobeProvider: React.FC<WardrobeProviderProps> = ({ children }) 
     productType: 'wardrobe',
     dimensions: DEFAULT_DIMENSIONS,
     viewSide: 'outer',
+    structureMode: 'internal',
     innerStructure: INITIAL_INNER_STRUCTURE,
+    innerPartitions: undefined,
     outerStructure: INITIAL_OUTER_STRUCTURE,
     materialConfig: INITIAL_MATERIAL_CONFIG,
     price: 0, // Will be calculated immediately
+    userProfile: { gender: '', age: null, heightFt: null, heightIn: null, preference: '' },
   });
 
   // Track current view (config or quote)
@@ -155,6 +160,25 @@ export const WardrobeProvider: React.FC<WardrobeProviderProps> = ({ children }) 
     });
   }, []);
 
+  const setUserProfile = useCallback((profile: Partial<UserProfile>) => {
+    setState((prev) => ({
+      ...prev,
+      userProfile: { ...prev.userProfile, ...profile },
+    }));
+  }, []);
+
+  const setStructureMode = useCallback((mode: StructureMode) => {
+    setState((prev) => ({ 
+      ...prev, 
+      structureMode: mode,
+      viewSide: mode === 'internal' ? 'inner' : 'outer'
+    }));
+  }, []);
+
+  const setInnerPartitions = useCallback((partitions: InnerStructure[]) => {
+    setState((prev) => ({ ...prev, innerPartitions: partitions }));
+  }, []);
+
   const generateQuote = useCallback(() => {
     console.log('Quote Generated:', state);
     setView('quote');
@@ -175,6 +199,9 @@ export const WardrobeProvider: React.FC<WardrobeProviderProps> = ({ children }) 
     setOuterStructure,
     setMaterialConfig,
     handleDimensionChange,
+    setUserProfile,
+    setStructureMode,
+    setInnerPartitions,
     generateQuote,
     backToConfig,
   };

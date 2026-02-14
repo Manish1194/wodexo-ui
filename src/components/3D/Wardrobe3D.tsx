@@ -16,6 +16,7 @@ interface Wardrobe3DProps {
   viewSide: ViewSide;
   innerStructure: InnerStructure;
   outerStructure: OuterStructure;
+  innerPartitions?: InnerStructure[];
 }
 
 const THICKNESS_FT = 0.75 / 12; // 0.75 inch thickness in feet
@@ -25,7 +26,7 @@ const THICKNESS_FT = 0.75 / 12; // 0.75 inch thickness in feet
  * Renders a 3D model of the wardrobe based on configuration
  */
 export const Wardrobe3D = React.forwardRef<Group, Wardrobe3DProps>(
-  ({ productType, dimensions, config, viewSide, innerStructure, outerStructure }, ref) => {
+  ({ productType, dimensions, config, viewSide, innerStructure, outerStructure, innerPartitions }, ref) => {
     
     // Debug logging
     console.log('Wardrobe3D Render:', { productType, viewSide, innerStructure });
@@ -52,6 +53,8 @@ export const Wardrobe3D = React.forwardRef<Group, Wardrobe3DProps>(
     const innerMetalness = 0.1;
 
     // --- Rendering Helpers ---
+
+    const legitRough = (r: number) => Math.min(1, Math.max(0, r));
 
     const renderCarcass = () => (
       <group>
@@ -117,6 +120,14 @@ export const Wardrobe3D = React.forwardRef<Group, Wardrobe3DProps>(
                </mesh>
             )}
 
+            {/* Under-shelf Light Strip */}
+            {outerStructure.lights && (
+              <mesh position={[0, -THICKNESS_FT/2 + 0.02, shelfDepth/2 - 0.05]}>
+                <boxGeometry args={[width - 2 * THICKNESS_FT, 0.03, 0.05]} />
+                <meshStandardMaterial color="#ffffcc" emissive="#ffeb99" emissiveIntensity={0.9} />
+              </mesh>
+            )}
+
             {/* Wine Rack for Bar Unit (on bottom shelves) */}
             {productType === 'bar_unit' && i < 2 && (
                <group position={[0, THICKNESS_FT/2 + 0.15, 0]}>
@@ -170,9 +181,116 @@ export const Wardrobe3D = React.forwardRef<Group, Wardrobe3DProps>(
         <mesh position={[0, yPos, 0]} castShadow receiveShadow rotation={[0, 0, Math.PI / 2]}>
           <cylinderGeometry args={[rodRadius, rodRadius, width - 2 * THICKNESS_FT, 16]} />
           <meshStandardMaterial color="#aaaaaa" metalness={0.8} roughness={0.2} />
+          {/* Light near hanging area */}
+          {outerStructure.lights && (
+            <pointLight position={[0, 0, depth/4]} color="#fff3c4" intensity={1} distance={depth} />
+          )}
         </mesh>
       );
     };
+
+    // --- Partition-based Rendering for Wardrobe Interiors ---
+    // Partitions are each ~3ft wide; 3/6/9ft => 1/2/3 partitions
+    const partitionsCount = useMemo(() => {
+      const wf = dimensions.widthFeet || 3;
+      const count = Math.max(1, Math.min(3, Math.round(wf / 3)));
+      return count;
+    }, [dimensions.widthFeet]);
+    const partitionWidth = useMemo(() => width / partitionsCount, [width, partitionsCount]);
+
+    const renderPartitionDividers = () => {
+      if (partitionsCount <= 1) return null;
+      const meshes = [];
+      for (let i = 1; i < partitionsCount; i++) {
+        const xPos = -width / 2 + i * partitionWidth;
+        meshes.push(
+          <mesh key={`divider-${i}`} position={[xPos, height / 2, 0]} castShadow receiveShadow>
+            <boxGeometry args={[THICKNESS_FT, height, depth]} />
+            <meshStandardMaterial color={innerColorHex} roughness={innerRoughness} metalness={innerMetalness} />
+          </mesh>
+        );
+      }
+      return meshes;
+    };
+
+    // Render simple, uniform internals if not wardrobe
+    const renderUniformInternals = () => (
+      <group>
+        {renderShelves()}
+        {renderDrawers()}
+        {renderHangings()}
+      </group>
+    );
+
+
+    const renderPartitionInternals = () => {
+      // For wardrobes, render per-partition shelves/drawers/hanging based on assumed uniform distribution
+      // To keep logic simple, reuse current counts within each partition proportionally
+      const groups = [];
+      for (let i = 0; i < partitionsCount; i++) {
+        const centerX = -width / 2 + partitionWidth / 2 + i * partitionWidth;
+        const pConfig = innerPartitions?.[i] ?? innerStructure;
+        const pShelves = pConfig.shelves;
+        const pDrawers = pConfig.drawers;
+        const pHang = pConfig.hangings > 0 ? 1 : 0;
+
+        // Shelves in partition
+        if (pShelves > 0) {
+          const availableHeight = height - 2 * THICKNESS_FT - (pDrawers > 0 ? pDrawers * 0.8 : 0);
+          const shelfSpacing = availableHeight / (pShelves + 1);
+          for (let s = 0; s < pShelves; s++) {
+            const yPos = THICKNESS_FT + (pDrawers > 0 ? pDrawers * 0.8 : 0) + shelfSpacing * (s + 1);
+            groups.push(
+              <mesh key={`p${i}-s${s}`} position={[centerX, yPos, 0]} castShadow receiveShadow>
+                <boxGeometry args={[partitionWidth - 2 * THICKNESS_FT, THICKNESS_FT, depth - THICKNESS_FT]} />
+                <meshStandardMaterial color={innerColorHex} roughness={innerRoughness} metalness={innerMetalness} />
+              </mesh>
+            );
+            if (outerStructure.lights) {
+              groups.push(
+                <mesh key={`p${i}-s${s}-light`} position={[centerX, yPos - THICKNESS_FT/2 + 0.02, (depth/2) - 0.05]}>
+                  <boxGeometry args={[partitionWidth - 2 * THICKNESS_FT, 0.03, 0.05]} />
+                  <meshStandardMaterial color="#ffffcc" emissive="#ffeb99" emissiveIntensity={0.9} />
+                </mesh>
+              );
+            }
+          }
+        }
+        // Drawers stack from bottom
+        for (let d = 0; d < pDrawers; d++) {
+          const drawerHeight = 0.8;
+          const yPos = THICKNESS_FT + d * drawerHeight + drawerHeight / 2;
+          groups.push(
+            <group key={`p${i}-d${d}`} position={[centerX, yPos, 0]}>
+              <mesh position={[0, 0, depth / 2 - THICKNESS_FT / 2]}>
+                <boxGeometry args={[partitionWidth - 2.2 * THICKNESS_FT, drawerHeight - 0.05, THICKNESS_FT]} />
+                <meshStandardMaterial color={innerColorHex} roughness={legitRough(innerRoughness)} metalness={innerMetalness} />
+              </mesh>
+              <mesh position={[0, 0, 0]}>
+                <boxGeometry args={[partitionWidth - 2.5 * THICKNESS_FT, drawerHeight - 0.1, depth - 2 * THICKNESS_FT]} />
+                <meshStandardMaterial color="#dddddd" roughness={0.9} />
+              </mesh>
+            </group>
+          );
+        }
+        // Hanging rod near top
+        if (pHang > 0) {
+          const rodRadius = 0.05;
+          const yPos = height - THICKNESS_FT - 0.5;
+          groups.push(
+            <mesh key={`p${i}-h`} position={[centerX, yPos, 0]} castShadow receiveShadow rotation={[0, 0, Math.PI / 2]}>
+              <cylinderGeometry args={[rodRadius, rodRadius, partitionWidth - 2 * THICKNESS_FT, 16]} />
+              <meshStandardMaterial color="#aaaaaa" metalness={0.8} roughness={0.2} />
+              {outerStructure.lights && (
+                <pointLight position={[0, 0, depth/4]} color="#fff3c4" intensity={1} distance={depth} />
+              )}
+            </mesh>
+          );
+        }
+      }
+      return <group>{groups}</group>;
+    };
+
 
     // Special Rendering for Bar Unit
     const renderBarFeatures = () => {
@@ -247,10 +365,10 @@ export const Wardrobe3D = React.forwardRef<Group, Wardrobe3DProps>(
            <group>
              {/* Render Carcass */}
              {renderCarcass()}
+             {/* Partition Dividers */}
+             {renderPartitionDividers()}
              {/* Render Internals */}
-             {renderShelves()}
-             {renderDrawers()}
-             {renderHangings()}
+             {productType === 'wardrobe' ? renderPartitionInternals() : renderUniformInternals()}
              {renderBarFeatures()}
            </group>
         )}

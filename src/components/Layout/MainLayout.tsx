@@ -16,7 +16,9 @@ import { useWardrobe } from '../../hooks/useWardrobe';
  * Right panel switches between ConfigPanel (config view) and QuotePage (quote view)
  */
 export const MainLayout: React.FC = () => {
-  const { view } = useWardrobe();
+  const { view, state } = useWardrobe();
+  const stepOne = state.step === 1;
+  const hideCanvas = stepOne || (state.step === 2 && state.structureMode === 'external');
 
   return (
     <Box
@@ -28,21 +30,21 @@ export const MainLayout: React.FC = () => {
         overflow: 'hidden',
       }}
     >
-      {/* Left Panel - 3D Canvas (Always Visible) */}
-      <Box
-        sx={{
-          width: '50%',
-          bgcolor: '#E3F2FD',
-          overflow: 'hidden',
-          position: 'relative',
-          boxShadow: 'inset -2px 0 4px rgba(0,0,0,0.05)',
-        }}
-      >
-        <CanvasView />
-      </Box>
+      {!hideCanvas && (
+        <Box
+          sx={{
+            width: '50%',
+            bgcolor: '#E3F2FD',
+            overflow: 'hidden',
+            position: 'relative',
+            boxShadow: 'inset -2px 0 4px rgba(0,0,0,0.05)',
+          }}
+        >
+          <CanvasView />
+        </Box>
+      )}
 
-      {/* Right Panel - Dynamic Content Based on View */}
-      <Box sx={{ width: '50%', overflow: 'hidden' }}>
+      <Box sx={{ width: stepOne ? '100%' : '50%', overflow: 'hidden' }}>
         {view === 'config' && <ConfigPanel />}
         {view === 'quote' && <QuotePage />}
       </Box>

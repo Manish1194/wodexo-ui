@@ -76,7 +76,7 @@ export const DIMENSION_CONSTRAINTS = {
 };
 
 export const DEFAULT_DIMENSIONS = {
-  widthFeet: 5,
+  widthFeet: 3,
   widthInches: 0,
   heightFeet: 8,
   heightInches: 0,

@@ -65,6 +65,7 @@ export const CanvasView: React.FC = () => {
         viewSide={state.viewSide}
         innerStructure={state.innerStructure}
         outerStructure={state.outerStructure}
+        innerPartitions={state.innerPartitions}
       />
 
       {/* Camera Controls */}

@@ -11,6 +11,15 @@ export type HardwareBrandType = 'hafele' | 'blum';
 
 export type ViewSide = 'inner' | 'outer';
 export type OpeningType = 'slide' | 'shutter';
+export type StructureMode = 'internal' | 'external';
+
+export interface UserProfile {
+  gender: 'male' | 'female' | 'other' | '';
+  age: number | null;
+  heightFt: number | null;
+  heightIn: number | null;
+  preference: 'hangings' | 'drawers' | 'balanced' | '';
+}
 
 export interface InnerStructure {
   shelves: number;
@@ -22,6 +31,10 @@ export interface OuterStructure {
   doors: number;
   openingType: OpeningType;
   design: string;
+  lights?: boolean;
+  loft?: boolean;
+  lockerDrawers?: number;
+  handleless?: boolean;
 }
 
 export interface MaterialConfig {
@@ -30,6 +43,8 @@ export interface MaterialConfig {
   aesthetic: AestheticType;
   aestheticColor: string;
   hardwareBrand: HardwareBrandType;
+  exteriorDesign?: 'pu_panel' | 'wood_glass' | 'aluminium_glass';
+  exteriorColors?: { c1: string; c2: string; c3: string };
 }
 
 export type MaterialType = BaseMaterialType; // Legacy support alias if needed
@@ -84,10 +99,13 @@ export interface WardrobeState {
   productType: ProductType;
   dimensions: WardrobeDimensions;
   viewSide: ViewSide;
+  structureMode: StructureMode;
   innerStructure: InnerStructure;
+  innerPartitions?: InnerStructure[]; // optional per-partition controls
   outerStructure: OuterStructure;
   materialConfig: MaterialConfig;
   price: number;
+  userProfile: UserProfile;
 }
 
 export interface Quote {
@@ -108,6 +126,9 @@ export interface WardrobeContextType {
   setOuterStructure: (structure: Partial<OuterStructure>) => void;
   setMaterialConfig: (config: Partial<MaterialConfig>) => void;
   handleDimensionChange: (key: keyof WardrobeDimensions, value: string) => void;
+  setUserProfile: (profile: Partial<UserProfile>) => void;
+  setStructureMode: (mode: StructureMode) => void;
+  setInnerPartitions?: (partitions: InnerStructure[]) => void;
   generateQuote: () => void;
   backToConfig: () => void;
 }

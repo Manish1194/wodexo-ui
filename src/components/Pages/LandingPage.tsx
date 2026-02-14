@@ -6,8 +6,8 @@ import { useNavigate } from 'react-router-dom';
 
 const categories = [
   { key: 'wardrobe', title: 'Wardrobes', description: 'Sliding or hinged, tailored to your space', disabled: false },
-  { key: 'bar_unit', title: 'Bar Units', description: 'Compact, stylish storage for your barware', disabled: false },
-  { key: 'sneakers_storage', title: 'Sneaker Storage', description: 'Dust-free display for your collection', disabled: false },
+  { key: 'bar_unit', title: 'Bar Units', description: 'Compact, stylish storage for your barware', disabled: true },
+  { key: 'sneakers_storage', title: 'Sneaker Storage', description: 'Dust-free display for your collection', disabled: true },
   { key: 'modular_kitchen', title: 'Modular Kitchen', description: 'Optimized layouts and premium finishes', disabled: true },
   { key: 'full_house', title: 'Full House', description: 'Complete home solution with all the essentials', disabled: true },
 ];

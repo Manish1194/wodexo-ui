@@ -4,8 +4,8 @@
  */
 
 import React from 'react';
-import { Box, Typography, Divider, Stepper, Step, StepLabel } from '@mui/material';
-import { THEME_COLORS, APP_CONFIG } from '../../constants/wardrobe';
+import { Box, Divider, Stepper, Step, StepLabel } from '@mui/material';
+import { THEME_COLORS } from '../../constants/wardrobe';
 import { useWardrobe } from '../../hooks/useWardrobe';
 import { Step1_Dimensions } from './Step1_Dimensions';
 import { Step2_Structure } from './Step2_Structure';
@@ -47,7 +47,7 @@ export const ConfigPanel: React.FC = () => {
     >
       {/* Header Section */}
       <Box sx={{ mb: 2 }}>
-        <Typography
+        {/* <Typography
           variant="h5"
           sx={{
             fontWeight: 700,
@@ -67,7 +67,7 @@ export const ConfigPanel: React.FC = () => {
           }}
         >
           {APP_CONFIG.appSubtitle}
-        </Typography>
+        </Typography> */}
         
         {/* Stepper */}
         <Stepper activeStep={state.step - 1} alternativeLabel>
