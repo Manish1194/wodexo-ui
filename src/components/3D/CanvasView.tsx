@@ -3,12 +3,13 @@
  * Wraps Three.js canvas with proper lighting and controls
  */
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import { CANVAS_LIGHTING, THEME_COLORS } from '../../constants/wardrobe';
 import { useWardrobe } from '../../hooks/useWardrobe';
 import { Wardrobe3D } from './Wardrobe3D';
+import { convertToDecimalFeet } from '../../utils/pricingEngine';
 
 /**
  * CanvasView Component
@@ -17,9 +18,23 @@ import { Wardrobe3D } from './Wardrobe3D';
 export const CanvasView: React.FC = () => {
   const { state } = useWardrobe();
 
+  // Calculate center of the wardrobe to focus camera
+  const height = useMemo(
+    () => convertToDecimalFeet(state.dimensions.heightFeet, state.dimensions.heightInches),
+    [state.dimensions.heightFeet, state.dimensions.heightInches],
+  );
+  
+  const centerTarget: [number, number, number] = [0, height / 2, 0];
+
+  // Initial camera position: Slightly right tilted
+  // x > 0 means looking from right
+  // z > 0 means looking from front
+  // y roughly at center height or slightly above
+  const cameraPosition: [number, number, number] = [6, 6, 14];
+
   return (
     <Canvas
-      camera={{ position: [12, 8, 12], fov: 45 }}
+      camera={{ position: cameraPosition, fov: 45 }}
       style={{
         width: '100%',
         height: '100%',
@@ -44,13 +59,17 @@ export const CanvasView: React.FC = () => {
 
       {/* 3D Model */}
       <Wardrobe3D
+        productType={state.productType}
         dimensions={state.dimensions}
-        material={state.material}
-        color={state.color}
+        config={state.materialConfig}
+        viewSide={state.viewSide}
+        innerStructure={state.innerStructure}
+        outerStructure={state.outerStructure}
+        innerPartitions={state.innerPartitions}
       />
 
       {/* Camera Controls */}
-      <OrbitControls autoRotate={false} />
+      <OrbitControls autoRotate={false} target={centerTarget} />
     </Canvas>
   );
 };

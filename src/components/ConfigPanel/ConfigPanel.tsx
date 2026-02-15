@@ -1,22 +1,37 @@
 /**
  * Configuration Panel Component
- * Main container for all configuration options (Dimensions, Material, Color, Price)
+ * Main container for the multi-step wizard configuration
  */
 
 import React from 'react';
-import { Box, Typography, Divider } from '@mui/material';
-import { THEME_COLORS, APP_CONFIG } from '../../constants/wardrobe';
-import { DimensionsCard } from './DimensionsCard';
-import { MaterialCard } from './MaterialCard';
-import { ColorCard } from './ColorCard';
-import { QuoteButton } from './QuoteButton';
+import { Box, Divider, Stepper, Step, StepLabel } from '@mui/material';
+import { THEME_COLORS } from '../../constants/wardrobe';
+import { useWardrobe } from '../../hooks/useWardrobe';
+import { Step1_Dimensions } from './Step1_Dimensions';
+import { Step2_Structure } from './Step2_Structure';
+import { Step3_Customization } from './Step3_Customization';
 
 /**
  * ConfigPanel Component
- * Orchestrates all configuration cards in a scrollable container
- * Fixed price and quote button at the bottom
+ * Orchestrates the 3-step wizard
  */
 export const ConfigPanel: React.FC = () => {
+  const { state } = useWardrobe();
+  const steps = ['Dimensions', 'Designing', 'Pricing'];
+
+  const renderStepContent = (step: number) => {
+    switch (step) {
+      case 1:
+        return <Step1_Dimensions />;
+      case 2:
+        return <Step2_Structure />;
+      case 3:
+        return <Step3_Customization />;
+      default:
+        return <Step1_Dimensions />;
+    }
+  };
+
   return (
     <Box
       sx={{
@@ -27,16 +42,16 @@ export const ConfigPanel: React.FC = () => {
         display: 'flex',
         flexDirection: 'column',
         overflow: 'hidden',
-        background: `linear-gradient(180deg, #FFFFFF 0%, #F8F9FA 100%)`,
+        background: `linear-gradient(180deg, ${THEME_COLORS.surface} 0%, ${THEME_COLORS.background} 100%)`,
       }}
     >
       {/* Header Section */}
-      <Box sx={{ mb: 1 }}>
-        <Typography
+      <Box sx={{ mb: 2 }}>
+        {/* <Typography
           variant="h5"
           sx={{
             fontWeight: 700,
-            color: THEME_COLORS.primary,
+            color: THEME_COLORS.textPrimary,
             fontSize: '1.25rem',
           }}
         >
@@ -48,43 +63,34 @@ export const ConfigPanel: React.FC = () => {
             color: THEME_COLORS.textSecondary,
             display: 'block',
             mt: 0.3,
+            mb: 1.5,
           }}
         >
           {APP_CONFIG.appSubtitle}
-        </Typography>
-        <Box
-          sx={{
-            width: '40px',
-            height: '2px',
-            background: `linear-gradient(90deg, ${THEME_COLORS.primary} 0%, ${THEME_COLORS.primaryLight} 100%)`,
-            borderRadius: '2px',
-            mt: 0.8,
-          }}
-        />
+        </Typography> */}
+        
+        {/* Stepper */}
+        <Stepper activeStep={state.step - 1} alternativeLabel>
+          {steps.map((label) => (
+            <Step key={label}>
+              <StepLabel>{label}</StepLabel>
+            </Step>
+          ))}
+        </Stepper>
       </Box>
 
       <Divider sx={{ mb: 1, opacity: 0.5 }} />
 
-      {/* Main Content Area - No Scroll */}
+      {/* Main Content Area - Scrollable */}
       <Box 
         sx={{ 
           flex: 1,
-          overflowY: 'hidden',
+          overflowY: state.step === 1 ? 'hidden' : 'auto',
           display: 'flex',
           flexDirection: 'column',
-          gap: 1,
         }}
       >
-        <DimensionsCard />
-        <MaterialCard />
-        <ColorCard />
-      </Box>
-
-      <Divider sx={{ mb: 1, opacity: 0.5 }} />
-
-      {/* Quote Button at bottom - Right Aligned */}
-      <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-        <QuoteButton />
+        {renderStepContent(state.step)}
       </Box>
     </Box>
   );

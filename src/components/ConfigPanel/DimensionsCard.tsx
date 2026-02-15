@@ -1,128 +1,104 @@
-/**
- * Dimensions Card Component
- * Configuration card for wardrobe dimensions (Width, Height, Depth in feet and inches)
- */
-
 import React from 'react';
-import { TextField, Card, CardContent, Typography, Box, Grid, alpha } from '@mui/material';
-import { DIMENSION_CONSTRAINTS, THEME_COLORS } from '../../constants/wardrobe';
+import { Typography, Box, Stack, FormControl, InputLabel, Select, MenuItem, Button } from '@mui/material';
 import { useWardrobe } from '../../hooks/useWardrobe';
 
-/**
- * DimensionsCard Component
- * Displays input fields for width, height, and depth in feet and inches format
- */
-export const DimensionsCard: React.FC = () => {
-  const { state, handleDimensionChange } = useWardrobe();
+interface DimensionsCardProps {
+  onHelpClick?: () => void;
+}
 
-  const dimensionFields = [
-    {
-      label: 'Width',
-      feet: 'widthFeet' as const,
-      inches: 'widthInches' as const,
-      valueF: state.dimensions.widthFeet,
-      valueI: state.dimensions.widthInches,
-    },
-    {
-      label: 'Height',
-      feet: 'heightFeet' as const,
-      inches: 'heightInches' as const,
-      valueF: state.dimensions.heightFeet,
-      valueI: state.dimensions.heightInches,
-    },
-    {
-      label: 'Depth',
-      feet: 'depthFeet' as const,
-      inches: 'depthInches' as const,
-      valueF: state.dimensions.depthFeet,
-      valueI: state.dimensions.depthInches,
-    },
-  ];
+export const DimensionsCard: React.FC<DimensionsCardProps> = ({ onHelpClick }) => {
+  const { state, setDimensions } = useWardrobe();
 
   return (
-    <Card 
-      sx={{ 
-        mb: 1,
-        backgroundColor: alpha(THEME_COLORS.primary, 0.05),
-        border: `1px solid ${alpha(THEME_COLORS.primary, 0.2)}`,
-        borderRadius: 2,
-        boxShadow: 'none',
-        transition: 'all 0.3s ease',
-      }}
-    >
-      <CardContent sx={{ p: 2 }}>
-        <Typography
-          variant="subtitle1"
-          sx={{
-            fontWeight: 600,
-            color: THEME_COLORS.primary,
-            mb: 1.2,
-          }}
-        >
+    <Box>
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.2 }}>
+        <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
           📏 Dimensions
         </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.2, gap: 1.5 }}>
+          <Button variant="outlined" size="small">Book Free Consultation</Button>
+          {onHelpClick && (
+            <Button variant="outlined" size="small" onClick={onHelpClick}>
+              Want some help with measurements ?
+            </Button>
+          )}
+        </Box>
+      </Box>
 
-        <Grid container spacing={1.2}>
-          {dimensionFields.map(({ label, feet, inches, valueF, valueI }) => (
-            // @ts-ignore - MUI Grid item type issue
-            <Grid item xs={12} key={label}>
-              <Box>
-                <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 500 }}>
-                  {label}
-                </Typography>
-                <Box sx={{ display: 'flex', gap: 0.8, mt: 0.6 }}>
-                  <TextField
-                    label="Feet"
-                    type="number"
-                    inputProps={{
-                      min: DIMENSION_CONSTRAINTS.feet.min,
-                      max: DIMENSION_CONSTRAINTS.feet.max,
-                      step: DIMENSION_CONSTRAINTS.feet.step,
-                    }}
-                    value={valueF}
-                    onChange={(e) => handleDimensionChange(feet, e.target.value)}
-                    size="small"
-                    fullWidth
-                    sx={{
-                      '& .MuiOutlinedInput-root': {
-                        '&:hover fieldset': {
-                          borderColor: THEME_COLORS.primary,
-                        },
-                        '&.Mui-focused fieldset': {
-                          borderColor: THEME_COLORS.primary,
-                        },
-                      },
-                    }}
-                  />
-                  <TextField
-                    label="Inches"
-                    type="number"
-                    inputProps={{
-                      min: DIMENSION_CONSTRAINTS.inches.min,
-                      max: DIMENSION_CONSTRAINTS.inches.max,
-                      step: DIMENSION_CONSTRAINTS.inches.step,
-                    }}
-                    value={valueI}
-                    onChange={(e) => handleDimensionChange(inches, e.target.value)}
-                    size="small"
-                    fullWidth
-                    sx={{
-                      '& .MuiOutlinedInput-root': {
-                        '&:hover fieldset': {
-                          borderColor: THEME_COLORS.primary,
-                        },
-                        '&.Mui-focused fieldset': {
-                          borderColor: THEME_COLORS.primary,
-                        },
-                      },
-                    }}
-                  />
-                </Box>
-              </Box>
-            </Grid>
-          ))}
-        </Grid>
-      </CardContent>
-    </Card>
+      <Stack spacing={1.2}>
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: { xs: '1fr', sm: 'repeat(3, 1fr)' },
+            gap: 1.5,
+          }}
+        >
+          <Box>
+            <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 500 }}>
+              Height
+            </Typography>
+            <FormControl fullWidth size="small" sx={{ mt: 0.6 }}>
+              <InputLabel>Feet</InputLabel>
+              <Select
+                label="Feet"
+                value={state.dimensions.heightFeet}
+                onChange={(e) =>
+                  setDimensions({
+                    ...state.dimensions,
+                    heightFeet: Number(e.target.value),
+                    heightInches: 0,
+                  })
+                }
+              >
+                {[6, 7, 8, 9, 10, 11, 12].map((v) => (
+                  <MenuItem key={v} value={v}>{v} ft</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
+
+          <Box>
+            <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 500 }}>
+              Width
+            </Typography>
+            <FormControl fullWidth size="small" sx={{ mt: 0.6 }}>
+              <InputLabel>Feet</InputLabel>
+              <Select
+                label="Feet"
+                value={state.dimensions.widthFeet}
+                onChange={(e) =>
+                  setDimensions({
+                    ...state.dimensions,
+                    widthFeet: Number(e.target.value),
+                    widthInches: 0,
+                  })
+                }
+              >
+                {[3, 6, 9].map((v) => (
+                  <MenuItem key={v} value={v}>{v} ft</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
+
+          <Box>
+            <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 500 }}>
+              Depth
+            </Typography>
+            <FormControl fullWidth size="small" sx={{ mt: 0.6 }}>
+              <InputLabel>Feet</InputLabel>
+              <Select
+                label="Feet"
+                value={2}
+                onChange={() => {}}
+                disabled
+              >
+                <MenuItem value={2}>2 ft</MenuItem>
+              </Select>
+            </FormControl>
+          </Box>
+        </Box>
+      </Stack>
+    </Box>
   );
 };

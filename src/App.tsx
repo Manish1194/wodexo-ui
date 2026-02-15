@@ -8,10 +8,14 @@
  * - Theme: Material-UI theming with custom colors
  */
 
-import { CssBaseline, ThemeProvider, createTheme } from '@mui/material';
+import { CssBaseline, ThemeProvider, createTheme, Box } from '@mui/material';
 import { WardrobeProvider } from './contexts/WardrobeContext';
 import { MainLayout } from './components/Layout/MainLayout';
 import { THEME_COLORS } from './constants/wardrobe';
+import { Header } from './components/Layout/Header';
+import { LandingPage } from './components/Pages/LandingPage';
+import { Routes, Route } from 'react-router-dom';
+import { ProductionConfirmationPage } from './components/Pages/ProductionConfirmationPage';
 
 /**
  * Material-UI Theme Configuration
@@ -19,6 +23,7 @@ import { THEME_COLORS } from './constants/wardrobe';
  */
 const theme = createTheme({
   palette: {
+    mode: 'light',
     primary: {
       main: THEME_COLORS.primary,
       light: THEME_COLORS.primaryLight,
@@ -30,7 +35,7 @@ const theme = createTheme({
       dark: THEME_COLORS.secondaryDark,
     },
     background: {
-      default: '#F5F7FA',
+      default: THEME_COLORS.background,
       paper: THEME_COLORS.surface,
     },
     text: {
@@ -39,7 +44,7 @@ const theme = createTheme({
     },
   },
   typography: {
-    fontFamily: '"Segoe UI", "Roboto", "Helvetica", "Arial", sans-serif',
+    fontFamily: '"Varela Round", "Segoe UI", "Roboto", "Helvetica", "Arial", sans-serif',
     h4: {
       fontWeight: 700,
       letterSpacing: '-0.3px',
@@ -93,12 +98,33 @@ const theme = createTheme({
           fontWeight: 600,
           transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         },
+        containedPrimary: {
+          backgroundImage: `linear-gradient(90deg, ${THEME_COLORS.brandGradientFrom}, ${THEME_COLORS.brandGradientTo})`,
+          backgroundColor: 'transparent',
+          color: '#fff',
+          boxShadow: 'none',
+          '&:hover': {
+            filter: 'brightness(1.05)',
+            boxShadow: '0 0 0 0',
+          },
+        },
       },
     },
     MuiCard: {
       styleOverrides: {
         root: {
           transition: 'all 0.3s ease',
+          backgroundColor: THEME_COLORS.surface,
+          borderColor: THEME_COLORS.border,
+          borderWidth: 1,
+          borderStyle: 'solid',
+        },
+      },
+    },
+    MuiAppBar: {
+      styleOverrides: {
+        root: {
+          backgroundColor: 'transparent',
         },
       },
     },
@@ -114,7 +140,16 @@ function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <WardrobeProvider>
-        <MainLayout />
+        <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+          <Header />
+          <Box sx={{ flex: 1 }}>
+            <Routes>
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/design" element={<MainLayout />} />
+              <Route path="/production-confirmation" element={<ProductionConfirmationPage />} />
+            </Routes>
+          </Box>
+        </Box>
       </WardrobeProvider>
     </ThemeProvider>
   );
