@@ -19,7 +19,8 @@ import { useWardrobe } from '../../hooks/useWardrobe';
 export const MainLayout: React.FC = () => {
   const { view, state } = useWardrobe();
   const stepOne = state.step === 1;
-  const hideLeft = view === 'config' && stepOne;
+  const stepThree = state.step === 3;
+  const hideLeft = view === 'config' && (stepOne || stepThree);
 
   return (
     <Box

@@ -108,7 +108,7 @@ export const QuotePage: React.FC = () => {
           <Card sx={cardStyle}>
             <CardContent>
               <Typography variant="subtitle2" sx={{ color: PRIMARY_COLOR, fontWeight: 600, mb: 1 }}>
-                Structure Configuration
+                Designing Configuration
               </Typography>
               <Stack direction="row" spacing={2}>
                 <Box sx={{ flex: 1 }}>

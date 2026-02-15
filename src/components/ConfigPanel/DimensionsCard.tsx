@@ -1,44 +1,38 @@
-/**
- * Dimensions Card Component
- * Configuration card for wardrobe dimensions (Width, Height, Depth in feet and inches)
- */
-
 import React from 'react';
-import { Card, CardContent, Typography, Box, Stack, alpha, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
-import { THEME_COLORS } from '../../constants/wardrobe';
+import { Typography, Box, Stack, FormControl, InputLabel, Select, MenuItem, Button } from '@mui/material';
 import { useWardrobe } from '../../hooks/useWardrobe';
 
-/**
- * DimensionsCard Component
- * Displays input fields for width, height, and depth in feet and inches format
- */
-export const DimensionsCard: React.FC = () => {
+interface DimensionsCardProps {
+  onHelpClick?: () => void;
+}
+
+export const DimensionsCard: React.FC<DimensionsCardProps> = ({ onHelpClick }) => {
   const { state, setDimensions } = useWardrobe();
 
   return (
-    <Card 
-      sx={{ 
-        mb: 1,
-        backgroundColor: alpha(THEME_COLORS.primary, 0.05),
-        border: `1px solid ${alpha(THEME_COLORS.primary, 0.2)}`,
-        borderRadius: 2,
-        boxShadow: 'none',
-        transition: 'all 0.3s ease',
-      }}
-    >
-      <CardContent sx={{ p: 2 }}>
-        <Typography
-          variant="subtitle1"
-          sx={{
-            fontWeight: 600,
-            color: THEME_COLORS.primary,
-            mb: 1.2,
-          }}
-        >
+    <Box>
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.2 }}>
+        <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
           📏 Dimensions
         </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.2, gap: 1.5 }}>
+          <Button variant="outlined" size="small">Book Free Consultation</Button>
+          {onHelpClick && (
+            <Button variant="outlined" size="small" onClick={onHelpClick}>
+              Want some help with measurements ?
+            </Button>
+          )}
+        </Box>
+      </Box>
 
-        <Stack spacing={1.2}>
+      <Stack spacing={1.2}>
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: { xs: '1fr', sm: 'repeat(3, 1fr)' },
+            gap: 1.5,
+          }}
+        >
           <Box>
             <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 500 }}>
               Height
@@ -103,8 +97,8 @@ export const DimensionsCard: React.FC = () => {
               </Select>
             </FormControl>
           </Box>
-        </Stack>
-      </CardContent>
-    </Card>
+        </Box>
+      </Stack>
+    </Box>
   );
 };

@@ -19,9 +19,9 @@ export const CanvasView: React.FC = () => {
   const { state } = useWardrobe();
 
   // Calculate center of the wardrobe to focus camera
-  const height = useMemo(() => 
-    convertToDecimalFeet(state.dimensions.heightFeet, state.dimensions.heightInches), 
-    [state.dimensions.heightFeet, state.dimensions.heightInches]
+  const height = useMemo(
+    () => convertToDecimalFeet(state.dimensions.heightFeet, state.dimensions.heightInches),
+    [state.dimensions.heightFeet, state.dimensions.heightInches],
   );
   
   const centerTarget: [number, number, number] = [0, height / 2, 0];

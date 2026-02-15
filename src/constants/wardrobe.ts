@@ -19,12 +19,12 @@ export const BASE_MATERIAL_OPTIONS: (BaseMaterialOption & { roughness: number; m
 ];
 
 export const AESTHETIC_OPTIONS: (AestheticOption & { roughness: number; metalness: number })[] = [
-  { value: 'laminate', label: 'Laminate', pricePerSqFt: 300, roughness: 0.4, metalness: 0 },
-  { value: 'membrane', label: 'Membrane', pricePerSqFt: 250, roughness: 0.6, metalness: 0 },
-  { value: 'pu', label: 'PU', pricePerSqFt: 600, roughness: 0.1, metalness: 0.1 },
-  { value: 'Acrylic', label: 'Acrylic', pricePerSqFt: 500, roughness: 0.3, metalness: 0 },
-  { value : 'Wood and glass', label: 'Wood and Glass', pricePerSqFt: 700, roughness: 0.8, metalness: 0.2 },
-  { value: 'Aluminium and glass', label: 'Aluminium and Glass', pricePerSqFt: 800, roughness: 0.6, metalness: 0.3 }
+  { value: 'laminate', label: 'Laminate', pricePerSqFt: 300, roughness: 0.4, metalness: 0, disabled: false },
+  { value: 'pu', label: 'PU', pricePerSqFt: 600, roughness: 0.1, metalness: 0.1, disabled: false  },
+  { value: 'Aluminium and glass', label: 'Aluminium and Glass', pricePerSqFt: 800, roughness: 0.6, metalness: 0.3, disabled: false  },
+  { value: 'membrane', label: 'Membrane', pricePerSqFt: 250, roughness: 0.6, metalness: 0, disabled: true },
+  { value: 'Acrylic', label: 'Acrylic', pricePerSqFt: 500, roughness: 0.3, metalness: 0, disabled: true  },
+  { value : 'Wood and glass', label: 'Wood and Glass', pricePerSqFt: 700, roughness: 0.8, metalness: 0.2, disabled: true  }
 ];
 
 export const HARDWARE_OPTIONS: HardwareOption[] = [
@@ -54,6 +54,9 @@ export const COLOR_VARIANTS = [
   { value: 'black', label: 'Black', hex: '#000000' },
   { value: 'oak', label: 'Oak', hex: '#D2B48C' },
   { value: 'walnut', label: 'Walnut', hex: '#5D4037' },
+  { value: 'beige', label: 'Beige', hex: '#F5E3C3' },
+  { value: 'warm_white', label: 'Warm White', hex: '#FDF5E6' },
+  { value: 'golden', label: 'Golden', hex: '#D4AF37' },
 ];
 
 export const THEME_COLORS = {

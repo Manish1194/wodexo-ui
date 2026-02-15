@@ -1,8 +1,8 @@
 import React, { useMemo, useState, useEffect } from 'react';
-import { Box, Typography, Button, ToggleButton, ToggleButtonGroup, Stack, TextField, FormControl, InputLabel, Select, MenuItem, Slider, Card, CardContent, alpha, Switch, FormControlLabel, FormLabel, Divider, Radio, RadioGroup } from '@mui/material';
+import { Box, Typography, Button, ToggleButton, ToggleButtonGroup, Stack, TextField, FormControl, Slider, Card, CardContent, alpha, Switch, FormControlLabel, FormLabel, Divider, Select, MenuItem } from '@mui/material';
 import { useWardrobe } from '../../hooks/useWardrobe';
-import { THEME_COLORS, BASE_MATERIAL_OPTIONS, AESTHETIC_OPTIONS, COLOR_VARIANTS } from '../../constants/wardrobe';
-import { BaseMaterialType, AestheticType, OpeningType } from '../../types/wardrobe';
+import { THEME_COLORS, COLOR_VARIANTS, AESTHETIC_OPTIONS } from '../../constants/wardrobe';
+import { AestheticType } from '../../types/wardrobe';
 
 export const Step2_Structure: React.FC = () => {
   const { state, setStep, setInnerStructure, setOuterStructure, setStructureMode, setMaterialConfig, setInnerPartitions } = useWardrobe();
@@ -32,6 +32,28 @@ export const Step2_Structure: React.FC = () => {
     const next = state.innerPartitions.map((p, i) => i === activePartition ? { ...p, ...patch } : p);
     setInnerPartitions(next);
   };
+
+  const allowedAestheticColors = useMemo(() => {
+    const aesthetic = state.materialConfig.aesthetic;
+    const design = state.materialConfig.aestheticDesign;
+    if (!aesthetic || !design) return [];
+    if (aesthetic === 'laminate' && design === 'solid_plain') return ['grey'];
+    if (aesthetic === 'laminate' && design === 'wood_grain') return ['walnut'];
+    if (aesthetic === 'laminate' && design === 'lam_fabric') return ['beige'];
+    if (aesthetic === 'pu' && design === 'fluted') return ['warm_white'];
+    if (aesthetic === 'pu' && design === 'flute') return ['beige', 'walnut'];
+    if (aesthetic === 'pu' && design === 'classical') return ['oak'];
+    if (aesthetic === 'Aluminium and glass' && design === 'tinted_glass') return ['grey'];
+    if (aesthetic === 'Aluminium and glass' && design === 'plain_glass') return ['golden'];
+    return [];
+  }, [state.materialConfig.aesthetic, state.materialConfig.aestheticDesign]);
+
+  useEffect(() => {
+    if (!state.materialConfig.aestheticDesign || allowedAestheticColors.length === 0) return;
+    if (!allowedAestheticColors.includes(state.materialConfig.aestheticColor)) {
+      setMaterialConfig({ aestheticColor: allowedAestheticColors[0] });
+    }
+  }, [allowedAestheticColors, setMaterialConfig, state.materialConfig.aestheticColor, state.materialConfig.aestheticDesign]);
 
   const cardStyle = {
     mb: 1,
@@ -134,6 +156,28 @@ export const Step2_Structure: React.FC = () => {
                   </Stack>
                 </CardContent>
               </Card> */}
+              <Typography variant="caption" sx={{ mb: 1, display: 'block', fontWeight: 600, color: 'text.secondary' }}>Internal Color</Typography>
+              <Stack direction="row" spacing={1.5} sx={{ overflowX: 'auto', pb: 0.5 }}>
+                {COLOR_VARIANTS.map((color) => (
+                  <Box
+                    key={color.value}
+                    onClick={() => setMaterialConfig({ baseColor: color.value })}
+                    sx={{
+                      width: 28,
+                      height: 28,
+                      borderRadius: '50%',
+                      bgcolor: color.hex,
+                      border: state.materialConfig.baseColor === color.value ? `3px solid ${THEME_COLORS.primary}` : '1px solid #ddd',
+                      boxShadow: state.materialConfig.baseColor === color.value ? '0 0 0 2px white inset' : 'none',
+                      cursor: 'pointer',
+                      flexShrink: 0,
+                      transition: 'all 0.2s',
+                      '&:hover': { transform: 'scale(1.1)' }
+                    }}
+                    title={color.label}
+                  />
+                ))}
+              </Stack>
 
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                 <Typography variant="body2" color="text.secondary">Partitions: {partitionsCount}</Typography>
@@ -206,10 +250,10 @@ export const Step2_Structure: React.FC = () => {
                   control={<Switch checked={!!state.outerStructure.loft} onChange={(_, c) => setOuterStructure({ loft: c })} />}
                   label="Add Loft (top)"
                 />
-                <FormControlLabel
+                {/* <FormControlLabel
                   control={<Switch checked={!!state.outerStructure.handleless} onChange={(_, c) => setOuterStructure({ handleless: c })} />}
                   label="Handleless Doors"
-                />
+                /> */}
                 {(() => {
                   const maxLocker = (state.innerPartitions?.[activePartition]?.drawers) ?? state.innerStructure.drawers;
                   const val = Math.min(state.outerStructure.lockerDrawers ?? 0, maxLocker);
@@ -293,33 +337,82 @@ export const Step2_Structure: React.FC = () => {
                 {/* Aesthetic */}
                 <Card sx={cardStyle}>
                   <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
-                    <FormControl component="fieldset" fullWidth>
-                      <FormLabel component="legend" sx={{ color: THEME_COLORS.primary, fontWeight: 600, mb: 1 }}>Aesthetics (Finish)</FormLabel>
-                      {/* show this radi group as grid with 2 columns  and 3 rows */}
-                      <RadioGroup
+                    <FormControl fullWidth size="small">
+                      <FormLabel component="legend" sx={{ color: THEME_COLORS.primary, fontWeight: 600, mb: 1 }}>
+                        Aesthetics (Finish)
+                      </FormLabel>
+                      <Select
                         value={state.materialConfig.aesthetic}
-                        onChange={(e) => setMaterialConfig({ aesthetic: e.target.value as AestheticType })}
-                        sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 1 }}
+                        onChange={(e) => setMaterialConfig({ aesthetic: e.target.value as AestheticType, aestheticDesign: undefined })}
                       >
                         {AESTHETIC_OPTIONS.map((option) => (
-                          <FormControlLabel
-                            key={option.value}
-                            value={option.value}
-                            control={<Radio size="small" sx={{ color: THEME_COLORS.primary, '&.Mui-checked': { color: THEME_COLORS.primary } }} />}
-                            label={<Typography variant="body2">{option.label} (₹{option.pricePerSqFt}/sq ft)</Typography>}
-                          />
+                          <MenuItem key={option.value} value={option.value} disabled={option.disabled}>
+                            {option.label} (₹{option.pricePerSqFt}/sq ft)
+                          </MenuItem>
                         ))}
-                      </RadioGroup>
+                      </Select>
                     </FormControl>
 
                     <Divider sx={{ my: 1.5 }} />
 
+                    <FormControl fullWidth size="small" sx={{ mb: 1.5 }}>
+                      <FormLabel sx={{ fontWeight: 600, mb: 0.5, color: 'text.secondary' }}>Design</FormLabel>
+                      <Select
+                        value={state.materialConfig.aestheticDesign ?? ''}
+                        onChange={(e) => {
+                          const value = e.target.value as string;
+                          setMaterialConfig({ aestheticDesign: value });
+                        }}
+                      >
+                        <MenuItem value="">
+                          <em>Select design</em>
+                        </MenuItem>
+                        {state.materialConfig.aesthetic === 'laminate' && (
+                          <MenuItem value="solid_plain">Solid Plain</MenuItem>
+                        )}
+                        {state.materialConfig.aesthetic === 'laminate' && (
+                          <MenuItem value="wood_grain">Wood Grain</MenuItem>
+                        )}
+                        {state.materialConfig.aesthetic === 'laminate' && (
+                          <MenuItem value="lam_fabric">Lam Fabric</MenuItem>
+                        )}
+                        {state.materialConfig.aesthetic === 'pu' && (
+                          <MenuItem value="fluted">Fluted</MenuItem>
+                        )}
+                        {state.materialConfig.aesthetic === 'pu' && (
+                          <MenuItem value="flute">Flute</MenuItem>
+                        )}
+                        {state.materialConfig.aesthetic === 'pu' && (
+                          <MenuItem value="classical">Classical</MenuItem>
+                        )}
+                        {state.materialConfig.aesthetic === 'Aluminium and glass' && (
+                          <MenuItem value="tinted_glass">Tinted Glass</MenuItem>
+                        )}
+                        {state.materialConfig.aesthetic === 'Aluminium and glass' && (
+                          <MenuItem value="plain_glass">Plain Glass</MenuItem>
+                        )}
+                      </Select>
+                    </FormControl>
+
                     <Typography variant="caption" sx={{ mb: 1, display: 'block', fontWeight: 600, color: 'text.secondary' }}>Finish Color</Typography>
-                    <Stack direction="row" spacing={1.5} sx={{ overflowX: 'auto', pb: 0.5 }}>
+                    <Stack
+                      direction="row"
+                      spacing={1.5}
+                      sx={{
+                        overflowX: 'auto',
+                        pb: 0.5,
+                        opacity: state.materialConfig.aestheticDesign ? 1 : 0.4,
+                        pointerEvents: state.materialConfig.aestheticDesign ? 'auto' : 'none',
+                      }}
+                    >
                       {COLOR_VARIANTS.map((color) => (
                         <Box
                           key={color.value}
-                          onClick={() => setMaterialConfig({ aestheticColor: color.value })}
+                          onClick={() => {
+                            if (!allowedAestheticColors.length || allowedAestheticColors.includes(color.value)) {
+                              setMaterialConfig({ aestheticColor: color.value });
+                            }
+                          }}
                           sx={{
                             width: 28,
                             height: 28,
@@ -327,10 +420,16 @@ export const Step2_Structure: React.FC = () => {
                             bgcolor: color.hex,
                             border: state.materialConfig.aestheticColor === color.value ? `3px solid ${THEME_COLORS.primary}` : '1px solid #ddd',
                             boxShadow: state.materialConfig.aestheticColor === color.value ? '0 0 0 2px white inset' : 'none',
-                            cursor: 'pointer',
+                            cursor: !allowedAestheticColors.length || allowedAestheticColors.includes(color.value) ? 'pointer' : 'default',
                             flexShrink: 0,
                             transition: 'all 0.2s',
-                            '&:hover': { transform: 'scale(1.1)' }
+                            opacity: !allowedAestheticColors.length || allowedAestheticColors.includes(color.value) ? 1 : 0.25,
+                            '&:hover': {
+                              transform:
+                                !allowedAestheticColors.length || allowedAestheticColors.includes(color.value)
+                                  ? 'scale(1.1)'
+                                  : 'none',
+                            },
                           }}
                           title={color.label}
                         />
@@ -338,10 +437,10 @@ export const Step2_Structure: React.FC = () => {
                     </Stack>
                   </CardContent>
                 </Card>
-                <FormControlLabel
+                {/* <FormControlLabel
                   control={<Switch checked={!!state.outerStructure.handleless} onChange={(_, c) => setOuterStructure({ handleless: c })} />}
                   label="Handleless Doors"
-                />
+                /> */}
               </Stack>
             </CardContent>
           </Card>
@@ -369,7 +468,7 @@ export const Step2_Structure: React.FC = () => {
             '&:hover': { bgcolor: THEME_COLORS.primaryDark }
           }}
         >
-          Next: Customization
+          Next: Material Selection
         </Button>
       </Box>
     </Stack>

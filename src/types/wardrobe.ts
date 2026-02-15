@@ -42,6 +42,7 @@ export interface MaterialConfig {
   baseColor: string;
   aesthetic: AestheticType;
   aestheticColor: string;
+  aestheticDesign?: string;
   hardwareBrand: HardwareBrandType;
   exteriorDesign?: 'pu_panel' | 'wood_glass' | 'aluminium_glass';
   exteriorColors?: { c1: string; c2: string; c3: string };
@@ -72,6 +73,7 @@ export interface AestheticOption {
   value: AestheticType;
   label: string;
   pricePerSqFt: number;
+  disabled?: boolean;
 }
 
 export interface HardwarePriceTier {

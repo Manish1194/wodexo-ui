@@ -1,8 +1,8 @@
 import React from 'react';
-import { Box, Typography, Button, Radio, RadioGroup, FormControlLabel, FormControl, FormLabel, Stack, Card, CardContent, Divider, alpha } from '@mui/material';
+import { Box, Typography, Button, Radio, RadioGroup, FormControlLabel, FormControl, FormLabel, Stack, Card, CardContent, alpha, Select, MenuItem } from '@mui/material';
 import { useWardrobe } from '../../hooks/useWardrobe';
-import { THEME_COLORS, BASE_MATERIAL_OPTIONS, AESTHETIC_OPTIONS, HARDWARE_OPTIONS, COLOR_VARIANTS } from '../../constants/wardrobe';
-import { BaseMaterialType, AestheticType, HardwareBrandType } from '../../types/wardrobe';
+import { THEME_COLORS, BASE_MATERIAL_OPTIONS, HARDWARE_OPTIONS } from '../../constants/wardrobe';
+import { BaseMaterialType, HardwareBrandType } from '../../types/wardrobe';
 import { formatPrice } from '../../utils/pricingEngine';
 
 export const Step3_Customization: React.FC = () => {
@@ -18,31 +18,26 @@ export const Step3_Customization: React.FC = () => {
   };
 
   return (
-    <Stack spacing={2} sx={{ p: 1 }}>
+    <Stack spacing={2} sx={{ p: 1, maxWidth: 720, mx: 'auto', width: '100%'  }}>
       
       {/* Base Material */}
       <Card sx={cardStyle}>
         <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
-          <FormControl component="fieldset" fullWidth>
+          <FormControl fullWidth size="small">
             <FormLabel component="legend" sx={{ color: THEME_COLORS.primary, fontWeight: 600, mb: 1 }}>Base Material</FormLabel>
-            <RadioGroup
+            <Select
               value={state.materialConfig.baseMaterial}
               onChange={(e) => setMaterialConfig({ baseMaterial: e.target.value as BaseMaterialType })}
             >
               {BASE_MATERIAL_OPTIONS.map((option) => (
-                <FormControlLabel 
-                  key={option.value} 
-                  value={option.value} 
-                  control={<Radio size="small" sx={{ color: THEME_COLORS.primary, '&.Mui-checked': { color: THEME_COLORS.primary } }} />} 
-                  label={<Typography variant="body2">{option.label} (₹{option.pricePerSqFt}/sq ft)</Typography>} 
-                />
+                <MenuItem key={option.value} value={option.value}>
+                  {option.label} (₹{option.pricePerSqFt}/sq ft)
+                </MenuItem>
               ))}
-            </RadioGroup>
+            </Select>
           </FormControl>
-          
-          <Divider sx={{ my: 1.5 }} />
-          
-          <Typography variant="caption" sx={{ mb: 1, display: 'block', fontWeight: 600, color: 'text.secondary' }}>Internal Color</Typography>
+
+          {/* <Typography variant="caption" sx={{ mb: 1, display: 'block', fontWeight: 600, color: 'text.secondary' }}>Internal Color</Typography>
           <Stack direction="row" spacing={1.5} sx={{ overflowX: 'auto', pb: 0.5 }}>
             {COLOR_VARIANTS.map((color) => (
               <Box
@@ -63,7 +58,7 @@ export const Step3_Customization: React.FC = () => {
                 title={color.label}
               />
             ))}
-          </Stack>
+          </Stack> */}
         </CardContent>
       </Card>
 
@@ -137,7 +132,7 @@ export const Step3_Customization: React.FC = () => {
       </Card>
 
       {/* Price Display */}
-      <Card 
+      {/* <Card 
         elevation={0}
         sx={{ 
           bgcolor: THEME_COLORS.skyBlue, 
@@ -152,7 +147,7 @@ export const Step3_Customization: React.FC = () => {
             {formatPrice(state.price)}
           </Typography>
         </CardContent>
-      </Card>
+      </Card> */}
 
       {/* Navigation Buttons */}
       <Box sx={{ mt: 'auto', pt: 2, pb: 2, display: 'flex', gap: 2 }}>

@@ -17,7 +17,7 @@ import { Step3_Customization } from './Step3_Customization';
  */
 export const ConfigPanel: React.FC = () => {
   const { state } = useWardrobe();
-  const steps = ['Dimensions', 'Structure', 'Customization'];
+  const steps = ['Dimensions', 'Designing', 'Material Selection'];
 
   const renderStepContent = (step: number) => {
     switch (step) {
@@ -85,7 +85,7 @@ export const ConfigPanel: React.FC = () => {
       <Box 
         sx={{ 
           flex: 1,
-          overflowY: 'auto',
+          overflowY: state.step === 1 ? 'hidden' : 'auto',
           display: 'flex',
           flexDirection: 'column',
         }}
